@@ -239,7 +239,6 @@ export default {
             canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw each sequence item on the canvas
-            console.log(processedSequenceItems);
             let x = 0;
             processedSequenceItems.forEach(async (processedSequenceItem) => {
                 if(processedSequenceItem.image !== null) canvasContext.drawImage(processedSequenceItem.image, x, 0, processedSequenceItem.width, itemHeight);
