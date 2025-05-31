@@ -102,10 +102,12 @@ import SkillOverlayF4 from '@/assets/images/F4.png';
 import SkillOverlayF5 from '@/assets/images/F5.png';
 import SkillOverlayHeal from '@/assets/images/Heal.png';
 import SkillOverlayElite from '@/assets/images/Elite.png';
-import SkillOverlayPlus from '@/assets/images/Plus.png';
-import SkillOverlayPlusWide from '@/assets/images/PlusWide.png';
-import SkillOverlayArrowMediumWide from '@/assets/images/ArrowMedium.png';
-import SkillOverlayArrowWide from '@/assets/images/ArrowWide.png';
+import SkillOverlayPlus64 from '@/assets/images/Plus64.png';
+import SkillOverlayPlus96 from '@/assets/images/Plus96.png';
+import SkillOverlayPlus128 from '@/assets/images/Plus128.png';
+import SkillOverlayArrow96 from '@/assets/images/Arrow96.png';
+import SkillOverlayArrow128 from '@/assets/images/Arrow128.png';
+import SkillOverlayWhen from '@/assets/images/When.png';
 
 export default {
     components: {
@@ -169,19 +171,27 @@ export default {
                 },
                 {
                     label: "+ (64)",
-                    image: SkillOverlayPlus,
+                    image: SkillOverlayPlus64,
+                },
+                {
+                    label: "+ (96)",
+                    image: SkillOverlayPlus96,
                 },
                 {
                     label: "+ (128)",
-                    image: SkillOverlayPlusWide,
+                    image: SkillOverlayPlus128,
                 },
                 {
                     label: "-> (96)",
-                    image: SkillOverlayArrowMediumWide,
+                    image: SkillOverlayArrow96,
                 },
                 {
                     label: "-> (128)",
-                    image: SkillOverlayArrowWide,
+                    image: SkillOverlayArrow128,
+                },
+                {
+                    label: "when (192)",
+                    image: SkillOverlayWhen,
                 },
             ]
         }
