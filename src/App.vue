@@ -1,29 +1,22 @@
 
 <template>
     <v-container class="text-center">
-        <!-- Skill sequence preview -->
-        <canvas
-            class="canvas"
-            ref="canvas"
-        />
-        <div class="mb-16">
-            <v-btn @click="downloadSequence()">
-                Download
-            </v-btn>
-        </div>
-
         <!-- Skill sequence editor -->
-        <div>
+        <div
+            v-for="(sequenceRow, rowIndex) in sequenceRows"
+            :key="rowIndex"
+            class="mb-2"
+        >
             <div
-                v-for="(item, index) in sequenceItems"
-                :key="index"
+                v-for="(item, itemIndex) in sequenceRow"
+                :key="itemIndex"
                 class="d-inline-block mr-2"
             >
                 <v-btn
                     color="error"
                     variant="outlined"
                     width="128"
-                    @click="removeSequenceItem(index)"
+                    @click.stop="removeSequenceItem(rowIndex, itemIndex)"
                 >
                     <v-icon size="32">
                         mdi-trash-can-outline
@@ -49,8 +42,8 @@
                     <v-btn
                         variant="plain"
                         width="64"
-                        @click="moveSequenceItem(index, -1)"
-                        :disabled="index === 0"
+                        @click.stop="moveSequenceItem(rowIndex, itemIndex, -1)"
+                        :disabled="itemIndex === 0"
                     >
                         <v-icon size="32">
                             mdi-arrow-left
@@ -59,8 +52,8 @@
                     <v-btn
                         variant="plain"
                         width="64"
-                        @click="moveSequenceItem(index, +1)"
-                        :disabled="index === sequenceItems.length - 1"
+                        @click.stop="moveSequenceItem(rowIndex, itemIndex, +1)"
+                        :disabled="itemIndex === sequenceRows[rowIndex].length - 1"
                     >
                         <v-icon size="32">
                             mdi-arrow-right
@@ -69,7 +62,7 @@
                 </div>
             </div>
             <div
-                class="d-inline-block"
+                class="d-inline-block mr-2"
                 style="vertical-align: top"
             >
                 <v-btn
@@ -77,13 +70,87 @@
                     variant="outlined"
                     width="128"
                     :height="36 + 8 + 128 + 8 + 48"
-                    @click="addSequenceItem()"
+                    @click.stop="addSequenceItem(rowIndex)"
                 >
                     <v-icon size="64">
                         mdi-plus
                     </v-icon>
                 </v-btn>
             </div>
+            <div
+                class="d-inline-block mr-2"
+                style="vertical-align: top"
+            >
+                <v-btn
+                    color="error"
+                    variant="outlined"
+                    width="128"
+                    :height="36 + 8 + 128 + 8 + 48"
+                    @click.stop="removeSequenceRow(rowIndex)"
+                >
+                    <v-icon size="64">
+                        mdi-trash-can-outline
+                    </v-icon>
+                </v-btn>
+            </div>
+            <div
+                class="d-inline-block"
+                style="vertical-align: top"
+            >
+                <v-btn
+                    variant="plain"
+                    width="64"
+                    :height="(36 + 8 + 128 + 8 + 48 - 8) / 2"
+                    @click.stop="moveSequenceRow(rowIndex, -1)"
+                    :disabled="rowIndex === 0"
+                >
+                    <v-icon size="64">
+                        mdi-arrow-up
+                    </v-icon>
+                </v-btn>
+                <v-btn
+                    class="d-block mt-2"
+                    variant="plain"
+                    width="64"
+                    :height="(36 + 8 + 128 + 8 + 48 - 8) / 2"
+                    @click.stop="moveSequenceRow(rowIndex, +1)"
+                    :disabled="rowIndex === sequenceRows.length - 1"
+                >
+                    <v-icon size="64">
+                        mdi-arrow-down
+                    </v-icon>
+                </v-btn>
+            </div>
+        </div>
+
+        <div @click="addSequenceRow">
+            <v-btn
+                color="success"
+                variant="outlined"
+                width="100%"
+                :max-width="128 * 8"
+                :height="128"
+                @click.stop="addSequenceRow()"
+            >
+                <v-icon size="64">
+                    mdi-plus
+                </v-icon>
+                <div>Add row</div>
+            </v-btn>
+        </div>
+
+        <!-- Skill sequence preview -->
+        <h2 class="mt-16">
+            Preview
+        </h2>
+        <canvas
+            class="canvas"
+            ref="canvas"
+        />
+        <div>
+            <v-btn @click.stop="downloadSequence()">
+                Download
+            </v-btn>
         </div>
     </v-container>
 </template>
@@ -115,7 +182,7 @@ export default {
     },
     data() {
         return {
-            sequenceItems: [],
+            sequenceRows: [],
             overlays: [
                 {
                     label: "",
@@ -197,64 +264,89 @@ export default {
         }
     },
     mounted() {
-        this.addSequenceItem();
+        this.addSequenceRow();
+        this.addSequenceItem(0);
     },
     methods: {
-        addSequenceItem() {
-            this.sequenceItems.push({
+        addSequenceRow() {
+            this.sequenceRows.push([]);
+        },
+        moveSequenceRow(row, direction) {
+            let neighbourSequenceRow = this.sequenceRows[row + direction];
+            this.sequenceRows[row + direction] = this.sequenceRows[row];
+            this.sequenceRows[row] = neighbourSequenceRow;
+        },
+        removeSequenceRow(row) {
+            this.sequenceRows.splice(row, 1);
+        },
+        addSequenceItem(row) {
+            this.sequenceRows[row].push({
                 image: null,
                 overlay: null
             });
         },
-        moveSequenceItem(index, direction) {
-            let neighbourSequenceItem = this.sequenceItems[index + direction];
-            this.sequenceItems[index + direction] = this.sequenceItems[index];
-            this.sequenceItems[index] = neighbourSequenceItem;
+        moveSequenceItem(row, index, direction) {
+            let neighbourSequenceItem = this.sequenceRows[row][index + direction];
+            this.sequenceRows[row][index + direction] = this.sequenceRows[row][index];
+            this.sequenceRows[row][index] = neighbourSequenceItem;
         },
-        removeSequenceItem(index) {
-            this.sequenceItems.splice(index, 1);
+        removeSequenceItem(row, index) {
+            this.sequenceRows[row].splice(index, 1);
         },
         async generateSequence() {
             const itemHeight = 128;
+            const rowGapHeight = 48;
 
             // Retrieve all images and canculate the total size of the sequence
-            let processedSequenceItems = [];
-            for (let index = 0; index < this.sequenceItems.length; index++) {
-                const sequenceItem = this.sequenceItems[index];
+            let processedSequenceRows = [];
+            for (let rowIndex = 0; rowIndex < this.sequenceRows.length; rowIndex++) {
+                let processedSequenceItems = [];
+
+                const sequenceRow = this.sequenceRows[rowIndex];
+
+                for (let itemIndex = 0; itemIndex < sequenceRow.length; itemIndex++) {
+                    const sequenceItem = sequenceRow[itemIndex];
            
-                let processedSequenceItem = {
-                    image: null,
-                    overlay: null,
-                    width: null
-                };
+                    let processedSequenceItem = {
+                        image: null,
+                        overlay: null,
+                        width: null
+                    };
 
-                // Retrieve the images
-                if(sequenceItem.image !== null) processedSequenceItem.image = await this.createImage(sequenceItem.image);
-                if(sequenceItem.overlay !== null) processedSequenceItem.overlay = await this.createImage(sequenceItem.overlay);
+                    // Retrieve the images
+                    if(sequenceItem.image !== null) processedSequenceItem.image = await this.createImage(sequenceItem.image);
+                    if(sequenceItem.overlay !== null) processedSequenceItem.overlay = await this.createImage(sequenceItem.overlay);
 
-                // Calculate the proper size of the image + overlay
-                if(processedSequenceItem.image === null && processedSequenceItem.overlay == null) processedSequenceItem.width = 128; // Default to being an open space if there is neither an image nor overlay
-                else if(processedSequenceItem.image === null) processedSequenceItem.width = processedSequenceItem.overlay.width;
-                else if(processedSequenceItem.overlay === null) processedSequenceItem.width = processedSequenceItem.image.width;
-                else processedSequenceItem.width = Math.max(processedSequenceItem.image.width, processedSequenceItem.overlay.width);
+                    // Calculate the proper size of the image + overlay
+                    if(processedSequenceItem.image === null && processedSequenceItem.overlay == null) processedSequenceItem.width = 128; // Default to being an open space if there is neither an image nor overlay
+                    else if(processedSequenceItem.image === null) processedSequenceItem.width = processedSequenceItem.overlay.width;
+                    else if(processedSequenceItem.overlay === null) processedSequenceItem.width = processedSequenceItem.image.width;
+                    else processedSequenceItem.width = Math.max(processedSequenceItem.image.width, processedSequenceItem.overlay.width);
 
-                processedSequenceItems.push(processedSequenceItem);
+                    processedSequenceItems.push(processedSequenceItem);
+                }
+
+                processedSequenceRows.push(processedSequenceItems);
             }
 
             // Prepare the canvas
             const canvas = this.$refs.canvas;
-            canvas.width = processedSequenceItems.map(item => item.width).reduce((width, itemWidth) => width + itemWidth, 0);
-            canvas.height = itemHeight;
+            canvas.width = Math.max(...processedSequenceRows.map(processedSequenceRow => processedSequenceRow.map(item => item.width).reduce((width, itemWidth) => width + itemWidth, 0))); // Calculate how wide the largest row is
+            canvas.height = processedSequenceRows.length * itemHeight + (processedSequenceRows.length - 1) * rowGapHeight;
             const canvasContext = canvas.getContext('2d');
             canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw each sequence item on the canvas
-            let x = 0;
-            processedSequenceItems.forEach(async (processedSequenceItem) => {
-                if(processedSequenceItem.image !== null) canvasContext.drawImage(processedSequenceItem.image, x, 0, processedSequenceItem.width, itemHeight);
-                if(processedSequenceItem.overlay !== null) canvasContext.drawImage(processedSequenceItem.overlay, x, 0, processedSequenceItem.width, itemHeight);
+            let y = 0;
+            processedSequenceRows.forEach((processedSequenceRow) => {
+                let x = 0;
+                processedSequenceRow.forEach(processedSequenceItem => {
+                    if(processedSequenceItem.image !== null) canvasContext.drawImage(processedSequenceItem.image, x, y, processedSequenceItem.width, itemHeight);
+                    if(processedSequenceItem.overlay !== null) canvasContext.drawImage(processedSequenceItem.overlay, x, y, processedSequenceItem.width, itemHeight);
 
-                x += processedSequenceItem.width;
+                    x += processedSequenceItem.width;
+                });
+                y += itemHeight + rowGapHeight;
             });
         },
         createImage(fileOrUrl) {
@@ -278,7 +370,7 @@ export default {
         }
     },
     watch: {
-        sequenceItems: {
+        sequenceRows: {
             deep: true,
             handler() {
                 this.generateSequence();
