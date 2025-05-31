@@ -35,6 +35,7 @@
                     :items="overlays"
                     item-title="label"
                     item-value="image"
+                    width="128"
                 />
                 <div
                     class="mt-2"
@@ -123,7 +124,7 @@
             </div>
         </div>
 
-        <div @click="addSequenceRow">
+        <div>
             <v-btn
                 color="success"
                 variant="outlined"
@@ -175,6 +176,8 @@ import SkillOverlayPlus128 from '@/assets/images/Plus128.png';
 import SkillOverlayArrow96 from '@/assets/images/Arrow96.png';
 import SkillOverlayArrow128 from '@/assets/images/Arrow128.png';
 import SkillOverlayWhen from '@/assets/images/When.png';
+import SkillOverlayWith from '@/assets/images/With.png';
+import SkillOverlayOffCooldown464 from '@/assets/images/OffCooldown464.png';
 
 export default {
     components: {
@@ -249,16 +252,24 @@ export default {
                     image: SkillOverlayPlus128,
                 },
                 {
-                    label: "-> (96)",
+                    label: "➡ arrow (96)",
                     image: SkillOverlayArrow96,
                 },
                 {
-                    label: "-> (128)",
+                    label: "➡ arrow (128)",
                     image: SkillOverlayArrow128,
                 },
                 {
-                    label: "when (192)",
+                    label: "When",
                     image: SkillOverlayWhen,
+                },
+                {
+                    label: "with",
+                    image: SkillOverlayWith,
+                },
+                {
+                    label: "off cooldown",
+                    image: SkillOverlayOffCooldown464,
                 },
             ]
         }
