@@ -182,8 +182,6 @@ import SkillOverlayPlus96 from '@/assets/images/Plus96.png';
 import SkillOverlayPlus128 from '@/assets/images/Plus128.png';
 import SkillOverlayArrow96 from '@/assets/images/Arrow96.png';
 import SkillOverlayArrow128 from '@/assets/images/Arrow128.png';
-import SkillOverlayWhen from '@/assets/images/When.png';
-import SkillOverlayWith from '@/assets/images/With.png';
 import SkillOverlayOffCooldown464 from '@/assets/images/OffCooldown464.png';
 
 export default {
@@ -247,32 +245,24 @@ export default {
                     image: SkillOverlayElite,
                 },
                 {
-                    label: "+ (64)",
+                    label: "+",
                     image: SkillOverlayPlus64,
                 },
                 {
-                    label: "+ (96)",
+                    label: "+ (wide)",
                     image: SkillOverlayPlus96,
                 },
                 {
-                    label: "+ (128)",
+                    label: "+ (extra wide)",
                     image: SkillOverlayPlus128,
                 },
                 {
-                    label: "➡ arrow (96)",
+                    label: "➡ arrow",
                     image: SkillOverlayArrow96,
                 },
                 {
-                    label: "➡ arrow (128)",
+                    label: "➡ arrow (wide)",
                     image: SkillOverlayArrow128,
-                },
-                {
-                    label: "When",
-                    image: SkillOverlayWhen,
-                },
-                {
-                    label: "with",
-                    image: SkillOverlayWith,
                 },
                 {
                     label: "off cooldown",
