@@ -308,7 +308,7 @@ export default {
             const itemHeight = 128;
             const rowGapHeight = 48;
 
-            // Retrieve all images and canculate the total size of the sequence
+            // Retrieve all images and calculate the total size of the sequence
             let processedSequenceRows = [];
             for (let rowIndex = 0; rowIndex < this.sequenceRows.length; rowIndex++) {
                 let processedSequenceItems = [];
@@ -321,19 +321,20 @@ export default {
                     let processedSequenceItem = {
                         image: null,
                         overlay: null,
-                        width: null
+                        width: null,
+                        text: null
                     };
 
                     // Retrieve the images
                     if(sequenceItem.image !== null) processedSequenceItem.image = await this.createImage(sequenceItem.image);
                     if(sequenceItem.overlay !== null) processedSequenceItem.overlay = await this.createImage(sequenceItem.overlay);
 
-                    // Calculate the proper size of the image + overlay
-                    if(processedSequenceItem.image === null && processedSequenceItem.overlay == null) processedSequenceItem.width = 128; // Default to being an open space if there is neither an image nor overlay
-                    else if(processedSequenceItem.image === null) processedSequenceItem.width = processedSequenceItem.overlay.width;
-                    else if(processedSequenceItem.overlay === null) processedSequenceItem.width = processedSequenceItem.image.width;
-                    else processedSequenceItem.width = Math.max(processedSequenceItem.image.width, processedSequenceItem.overlay.width);
-
+                    // Calculate the proper size of the image + overlay + text
+                    if(processedSequenceItem.image !== null && processedSequenceItem.overlay !== null) processedSequenceItem.width = Math.max(processedSequenceItem.image.width, processedSequenceItem.overlay.width);
+                    else if(processedSequenceItem.image !== null) processedSequenceItem.width = processedSequenceItem.image.width;
+                    else if(processedSequenceItem.overlay !== null) processedSequenceItem.width = processedSequenceItem.overlay.width;
+                    else if(processedSequenceItem.text !== null) processedSequenceItem.width = this.calculateTextWidth(processedSequenceItem.text);
+                    else processedSequenceItem.width = 128; // Default to being an open space if there is neither an image nor overlay nor text
                     processedSequenceItems.push(processedSequenceItem);
                 }
 
@@ -354,6 +355,7 @@ export default {
                 processedSequenceRow.forEach(processedSequenceItem => {
                     if(processedSequenceItem.image !== null) canvasContext.drawImage(processedSequenceItem.image, x, y, processedSequenceItem.width, itemHeight);
                     if(processedSequenceItem.overlay !== null) canvasContext.drawImage(processedSequenceItem.overlay, x, y, processedSequenceItem.width, itemHeight);
+                    if(processedSequenceItem.text !== null) this.drawText(canvasContext, processedSequenceItem.text, x, y, processedSequenceItem.width, itemHeight);
 
                     x += processedSequenceItem.width;
                 });
@@ -363,10 +365,58 @@ export default {
         createImage(fileOrUrl) {
             return new Promise((resolve, reject) => {
                 const image = new Image();
-                image.onload = () => resolve(image);
+                // Rescale the image so it uses the expected standard of gw2 skill icons aka 128px high.
+                image.onload = () => {
+                    const itemHeight = 128;
+                    const scale = itemHeight / image.height;
+                    const canvas = document.createElement('canvas');
+
+                    // Create a canvas with the rescaled size
+                    canvas.width = Math.round(image.width * scale);
+                    canvas.height = itemHeight;
+
+                    // Draw and export the image in the rescaled size
+                    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas);
+                };
+                // image.onload = () => resolve(image);
                 image.onerror = () => reject();
                 image.src = fileOrUrl instanceof File ? URL.createObjectURL(fileOrUrl) : fileOrUrl;
             });
+        },
+        /** Helper function so calculateTextWidth() and drawText() use the same text settings. */
+        setCanvasContextForText(canvasContext) {
+            canvasContext.font = `64px "Maiandra GD", sans-serif`;
+            canvasContext.textAlign = 'center';
+            canvasContext.textBaseline = 'middle';
+            canvasContext.lineJoin = 'round';
+            canvasContext.lineWidth = 2;
+            canvasContext.strokeStyle = 'black';
+            canvasContext.fillStyle = 'white';
+        },
+        calculateTextWidth(text) {
+            const horizontalMargin = 4;
+            const canvas = document.createElement('canvas')
+
+            const canvasContext = canvas.getContext('2d');
+            this.setCanvasContextForText(canvasContext);
+            const width = canvasContext.measureText(text).width + (horizontalMargin * 2); 
+
+            return width;
+        },
+        drawText(canvasContext, text, x, y, width, height) {
+            canvasContext.save();
+            
+            const maxTextWidth = width;
+            const centerX = x + width / 2;
+            const centerY = y + height / 2;
+
+            this.setCanvasContextForText(canvasContext);
+
+            // Black border first, white fill on top
+            canvasContext.strokeText(text, centerX, centerY, maxTextWidth);
+            canvasContext.fillText(text, centerX, centerY, maxTextWidth);
+            canvasContext.restore();
         },
         downloadSequence() {
             const link = document.createElement('a');
