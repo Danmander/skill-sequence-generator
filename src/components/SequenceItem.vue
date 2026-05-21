@@ -1,5 +1,5 @@
 <template>
-    <div class="sequance-item">
+    <div class="sequence-item">
         <img
             v-if="imageSrc !== null"
             class="image"
@@ -58,7 +58,7 @@ export default {
 </script>
 
 <style scoped>
-.sequance-item {
+.sequence-item {
     line-height: 0;
 }
 

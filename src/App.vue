@@ -12,18 +12,7 @@
                 :key="itemIndex"
                 class="d-inline-block mr-2"
             >
-                <v-btn
-                    color="error"
-                    variant="outlined"
-                    width="128"
-                    @click.stop="removeSequenceItem(rowIndex, itemIndex)"
-                >
-                    <v-icon size="32">
-                        mdi-trash-can-outline
-                    </v-icon>
-                </v-btn>
                 <sequence-item
-                    class="mt-2"
                     v-model="item.image"
                 />
                 <v-autocomplete
@@ -37,31 +26,49 @@
                     item-value="image"
                     width="128"
                 />
-                <div
-                    class="mt-2"
-                >
+                <v-text-field
+                    class="mt-2 custom-text-input"
+                    v-model="item.text"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                    width="128"
+                    height="48"
+                />
+
+                <!-- Item actions -->
+                <div class="top-right-actions">
                     <v-btn
+                        width="24"
+                        height="24"
+                        color="error"
                         variant="plain"
-                        width="64"
+                        icon="mdi-delete"
+                        @click.stop="removeSequenceItem(rowIndex, itemIndex)"
+                    />
+                </div>
+                <div class="bottom-actions d-flex">
+                    <v-btn
+                        width="24"
+                        height="24"
+                        variant="plain"
+                        icon="mdi-arrow-left"
                         @click.stop="moveSequenceItem(rowIndex, itemIndex, -1)"
                         :disabled="itemIndex === 0"
-                    >
-                        <v-icon size="32">
-                            mdi-arrow-left
-                        </v-icon>
-                    </v-btn>
+                    />
+                    <v-spacer />
                     <v-btn
+                        width="24"
+                        height="24"
                         variant="plain"
-                        width="64"
+                        icon="mdi-arrow-right"
                         @click.stop="moveSequenceItem(rowIndex, itemIndex, +1)"
                         :disabled="itemIndex === sequenceRows[rowIndex].length - 1"
-                    >
-                        <v-icon size="32">
-                            mdi-arrow-right
-                        </v-icon>
-                    </v-btn>
+                    />
                 </div>
             </div>
+
+            <!-- Row actions -->
             <div
                 class="d-inline-block mr-2"
                 style="vertical-align: top"
@@ -70,7 +77,7 @@
                     color="success"
                     variant="outlined"
                     width="128"
-                    :height="36 + 8 + 128 + 8 + 48"
+                    :height="128 + 8 + 48 + 8 + 48"
                     @click.stop="addSequenceItem(rowIndex)"
                 >
                     <v-icon size="64">
@@ -86,11 +93,11 @@
                     color="error"
                     variant="outlined"
                     width="128"
-                    :height="36 + 8 + 128 + 8 + 48"
+                    :height="128 + 8 + 48 + 8 + 48"
                     @click.stop="removeSequenceRow(rowIndex)"
                 >
                     <v-icon size="64">
-                        mdi-trash-can-outline
+                        mdi-delete
                     </v-icon>
                 </v-btn>
             </div>
@@ -101,7 +108,7 @@
                 <v-btn
                     variant="plain"
                     width="64"
-                    :height="(36 + 8 + 128 + 8 + 48 - 8) / 2"
+                    :height="(128 + 8 + 48 + 8 + 48) / 2"
                     @click.stop="moveSequenceRow(rowIndex, -1)"
                     :disabled="rowIndex === 0"
                 >
@@ -113,7 +120,7 @@
                     class="d-block mt-2"
                     variant="plain"
                     width="64"
-                    :height="(36 + 8 + 128 + 8 + 48 - 8) / 2"
+                    :height="(128 + 8 + 48 + 8 + 48) / 2"
                     @click.stop="moveSequenceRow(rowIndex, +1)"
                     :disabled="rowIndex === sequenceRows.length - 1"
                 >
@@ -293,7 +300,8 @@ export default {
         addSequenceItem(row) {
             this.sequenceRows[row].push({
                 image: null,
-                overlay: null
+                overlay: null,
+                text: null
             });
         },
         moveSequenceItem(row, index, direction) {
@@ -328,6 +336,7 @@ export default {
                     // Retrieve the images
                     if(sequenceItem.image !== null) processedSequenceItem.image = await this.createImage(sequenceItem.image);
                     if(sequenceItem.overlay !== null) processedSequenceItem.overlay = await this.createImage(sequenceItem.overlay);
+                    if(sequenceItem.text !== null) processedSequenceItem.text = sequenceItem.text;
 
                     // Calculate the proper size of the image + overlay + text
                     if(processedSequenceItem.image !== null && processedSequenceItem.overlay !== null) processedSequenceItem.width = Math.max(processedSequenceItem.image.width, processedSequenceItem.overlay.width);
@@ -395,7 +404,7 @@ export default {
             canvasContext.fillStyle = 'white';
         },
         calculateTextWidth(text) {
-            const horizontalMargin = 4;
+            const horizontalMargin = 12;
             const canvas = document.createElement('canvas')
 
             const canvasContext = canvas.getContext('2d');
@@ -442,6 +451,24 @@ export default {
 </script>
 
 <style scoped>
+.top-right-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.bottom-actions {
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 100px;
+}
+
+.custom-text-input:deep(.v-field__input){
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 .canvas {
     background-color: rgb(var(--v-theme-surface));
 }
