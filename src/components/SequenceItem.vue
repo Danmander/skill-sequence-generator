@@ -1,9 +1,9 @@
 <template>
     <div class="sequence-item">
         <img
-            v-if="imageSrc !== null"
+            v-if="image !== null"
             class="image"
-            :src="imageSrc"
+            :src="image"
             @click="$refs.input.click()"
         >
         <div
@@ -37,16 +37,20 @@ export default {
             image: this.modelValue,
         }
     },
-    computed: {
-        imageSrc() {
-            if(this.image === null) return null;
-            return URL.createObjectURL(this.image);
-        }
-    },
     methods: {
         onFileChange(event) {
-            this.image = event.target.files[0] ?? null;
-            this.$emit("update:modelValue", this.image);
+            const file = event.target.files[0] ?? null;
+            if(file === null) {
+                this.image = null;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.image = reader.result; // Base64 data url
+                this.$emit("update:modelValue", reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     },
     watch: {

@@ -160,6 +160,14 @@
                 Download
             </v-btn>
         </div>
+
+        <!-- Save/load -->
+        <h2 class="mt-16">
+            Save & Load
+        </h2>
+        <div class="save-load">
+            <v-text-field v-model="sequenceRowsAsJson" />
+        </div>
     </v-container>
 </template>
 
@@ -274,6 +282,16 @@ export default {
     mounted() {
         this.addSequenceRow();
         this.addSequenceItem(0);
+    },
+    computed: {
+        sequenceRowsAsJson: {
+            get() {
+                return JSON.stringify(this.sequenceRows);
+            },
+            set(value) {
+                this.sequenceRows = JSON.parse(value);
+            }
+        }
     },
     methods: {
         addSequenceRow() {
@@ -408,7 +426,8 @@ export default {
             
             const maxTextWidth = width;
             const centerX = x + width / 2;
-            const centerY = y + height / 2;
+            const verticalOffset = 4; // When I was still making these text images myself I ended up making them slightly off-centered so to make everything uniform we also do it here
+            const centerY = y + height / 2 + verticalOffset;
 
             this.setCanvasContextForText(canvasContext);
 
@@ -461,5 +480,11 @@ export default {
 
 .canvas {
     background-color: rgb(var(--v-theme-surface));
+}
+
+.save-load {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>
